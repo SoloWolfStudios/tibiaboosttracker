@@ -1,8 +1,8 @@
-# Tibia Discord Bot - Web Dashboard
+# Tibia Discord Bot
 
 ## Overview
 
-This is a full-stack web application that provides a Discord bot for tracking and posting daily boosted creatures and bosses from the MMORPG Tibia, along with a comprehensive web dashboard for monitoring and configuration. The bot automatically posts updates at 10:06 CEST (6 minutes after server save) and includes smart change detection to prevent spam.
+This is a Discord bot that intelligently tracks and posts daily boosted creatures and bosses from the MMORPG Tibia. The bot automatically monitors changes to the daily boosted creature and boss, posting updates only when they actually change to prevent spam. It uses the TibiaData API v4 for accurate data and posts at 10:06 CEST (right after Tibia server boot). The bot features custom skull and sword branding and is designed for easy deployment to Railway.com.
 
 ## User Preferences
 
@@ -10,89 +10,105 @@ Preferred communication style: Simple, everyday language.
 
 ## System Architecture
 
-### Frontend Architecture
-- **Framework**: React with TypeScript using Vite as the build tool
-- **UI Library**: Shadcn/ui components built on Radix UI primitives
-- **Styling**: Tailwind CSS with dark theme design
-- **State Management**: TanStack React Query for server state management
-- **Routing**: Wouter for client-side routing
-- **Data Fetching**: Custom query client with built-in error handling
+### Core Architecture
+- **Language**: Python 3.11+
+- **Framework**: discord.py for Discord API integration
+- **API Integration**: TibiaData API v4 for game data
+- **Scheduling**: APScheduler for automated daily checks
+- **Deployment**: Designed for Railway deployment with environment variable configuration
 
-### Backend Architecture
-- **Runtime**: Node.js with Express.js REST API
-- **Language**: TypeScript with ES modules
-- **Database ORM**: Drizzle ORM for type-safe database operations
-- **Database**: PostgreSQL (configured for Neon serverless)
-- **Session Management**: PostgreSQL-backed sessions with connect-pg-simple
-- **Development**: Vite middleware integration for hot reloading
+### Component Structure
+The bot follows a modular architecture with separate components:
+- `main.py`: Entry point and bot initialization
+- `bot/`: Core bot functionality split into specialized modules
+- `bot/tibia_api.py`: API client for TibiaData
+- `bot/embed_builder.py`: Discord embed creation and formatting
+- `bot/scheduler.py`: Task scheduling with timezone awareness
 
-### Key Components
+## Key Components
 
-#### Discord Bot Features
-- Automatic daily updates at 10:06 CEST
-- Slash commands: `/update`, `/creature`, `/boss`, `/next`
-- Rich Discord embeds with creature images and stats
-- Smart change detection to avoid duplicate posts
-- TibiaData API v4 integration with fallback mechanisms
+### TibiaBot Class (main.py)
+- Extends discord.py's commands.Bot
+- Manages bot configuration and component initialization
+- Handles Discord intents and command prefix
+- Coordinates between API, scheduler, and embed builder
+- Registers all slash commands for user interaction
 
-#### Web Dashboard Features
-- Real-time bot status monitoring
-- Creature tracking and history
-- Configuration management
-- API testing interface
-- Activity logs and troubleshooting
+### TibiaAPI (bot/tibia_api.py)
+- Handles all HTTP requests to TibiaData API v4
+- Implements connection pooling with aiohttp
+- Provides retry logic for failed requests
+- Manages session lifecycle and cleanup
+- **NEW**: Fallback to TibiaWiki scraping when TibiaData API fails
+- **NEW**: HTML parsing for creature information extraction
+- **NEW**: Graceful degradation with fallback creature data
 
-#### Database Schema
-- `users`: User authentication and management
-- `bot_logs`: Activity logging with timestamps and levels
-- `bot_status`: Real-time bot status tracking
-- `creatures`: Creature data with boosted status tracking
-- `api_tests`: API endpoint testing and monitoring
+### EmbedBuilder (bot/embed_builder.py)
+- Creates rich Discord embeds for creature and boss announcements
+- Handles color schemes and custom skull/sword branding
+- Integrates creature images from TibiaWiki
+- Formats creature stats and information
+- Uses custom icon URL for consistent branding across all embeds
+
+### TibiaScheduler (bot/scheduler.py)
+- Manages automated daily checks using APScheduler
+- Handles Central European timezone (CET/CEST) awareness
+- Schedules primary check at 10:06 and backup check 30 minutes later
+- Prevents duplicate executions with job coalescing
 
 ## Data Flow
 
-1. **Bot Operations**: Discord bot fetches data from TibiaData API, processes changes, and posts updates
-2. **Status Updates**: Bot reports status to database via REST API
-3. **Dashboard Monitoring**: Web interface queries bot status and logs in real-time
-4. **Configuration**: Web dashboard allows configuration changes that affect bot behavior
-5. **API Testing**: Dashboard provides interface to test and monitor external API endpoints
+1. **Scheduled Trigger**: At 10:06 CEST daily, scheduler triggers boosted creature/boss check
+2. **API Request**: TibiaAPI fetches current boosted data from TibiaData API
+3. **Change Detection**: Bot compares current data with previously posted data
+4. **Embed Creation**: If changes detected, EmbedBuilder creates formatted Discord embeds
+5. **Channel Posting**: Bot posts embeds to configured Discord channels
+6. **State Update**: Bot updates internal state to track last posted creatures/bosses
 
 ## External Dependencies
 
-### Core Dependencies
-- **Discord Integration**: Discord.js for bot functionality
-- **TibiaData API**: External API for game data (v4)
-- **Database**: Neon PostgreSQL serverless database
-- **UI Components**: Radix UI primitives with Shadcn/ui wrapper
+### APIs
+- **TibiaData API v4**: Primary data source for boosted creatures and bosses
+- **Discord API**: Bot communication via discord.py library
+- **TibiaWiki**: Image URLs for creature thumbnails
 
-### Development Tools
-- **Build System**: Vite with TypeScript support
-- **ORM**: Drizzle Kit for database migrations
-- **Styling**: PostCSS with Autoprefixer
-- **Type Safety**: Zod for runtime schema validation
+### Python Libraries
+- **discord.py**: Discord bot framework
+- **aiohttp**: Async HTTP client for API requests
+- **apscheduler**: Task scheduling
+- **pytz**: Timezone handling
+- **python-dotenv**: Environment variable management
 
 ## Deployment Strategy
 
-### Railway Deployment
-The application is configured for Railway deployment with the following setup:
+### Railway Deployment (Recommended)
+- One-click deployment via Railway template
+- Environment variables for configuration
+- Automatic scaling and monitoring
+- Built-in logging and health checks
 
-#### Required Environment Variables
+### Environment Variables
 - `DISCORD_TOKEN`: Discord bot authentication token
-- `CREATURE_CHANNEL_ID`: Discord channel for creature updates
-- `BOSS_CHANNEL_ID`: Discord channel for boss updates
-- `DATABASE_URL`: PostgreSQL connection string (auto-provisioned by Railway)
+- `CREATURE_CHANNEL_ID`: Discord channel ID for boosted creature posts
+- `BOSS_CHANNEL_ID`: Discord channel ID for boosted boss posts
 
-#### Build Process
-1. Frontend builds to `dist/public` directory
-2. Backend builds with esbuild to `dist/index.js`
-3. Single production server serves both static frontend and API routes
+### Configuration Requirements
+- Discord bot must have permissions to send messages and embed links
+- Channels must be accessible to the bot
+- Bot requires message content intent for command handling
 
-#### Architecture Decisions
-- **Monolith Design**: Single application serving both frontend and backend reduces deployment complexity
-- **Serverless Database**: Neon PostgreSQL provides automatic scaling and connection pooling
-- **Static Asset Serving**: Production server serves pre-built React assets with API fallback
-- **Session Storage**: PostgreSQL-backed sessions for persistent user authentication
-- **Error Handling**: Comprehensive error boundaries and API error responses
-- **Development Experience**: Vite HMR integration for rapid development iteration
+### Monitoring and Logging
+- File-based logging (`bot.log`) and console output
+- Comprehensive error handling and retry logic
+- Grace periods for missed scheduled jobs
+- Session management for long-running connections
 
-The application uses a hybrid approach where the development server runs Vite middleware for hot reloading, while production serves static assets directly from Express, providing optimal performance in both environments.
+## Recent Changes: Latest modifications with dates
+
+### July 18, 2025
+- **FIXED**: API endpoint bug - creatures now correctly detected using /v4/creatures instead of /v4/world/Antica
+- **ENHANCED**: Added /creature and /boss commands with detailed information
+- **ADDED**: /next command - shows next server save countdown
+- **ADDED**: /schedule command - shows bot's posting schedule
+- **IMPROVED**: Multi-source data strategy (TibiaData API + TibiaWiki fallback)
+- **IMPROVED**: Better error handling and logging for data source tracking

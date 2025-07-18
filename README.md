@@ -1,169 +1,116 @@
 # Tibia Discord Bot
 
-A Discord bot that automatically tracks and posts daily boosted creatures and bosses from the MMORPG Tibia, with a web dashboard for monitoring and configuration.
+A Discord bot that intelligently tracks and posts daily boosted creatures and bosses from the MMORPG Tibia. The bot automatically posts updates only when the boosted creature or boss changes, preventing spam while keeping your Discord server informed.
 
 ## Features
 
-### Discord Bot
-- **Automatic Updates**: Posts daily boosted creatures and bosses at 10:06 CEST (6 minutes after server save)
-- **Smart Detection**: Only posts when changes occur to prevent spam
-- **Slash Commands**:
-  - `/update` - Manually trigger creature/boss update
-  - `/creature` - Show current boosted creature
-  - `/boss` - Show current boosted boss  
-  - `/next` - Show time until next update
-- **Rich Embeds**: Beautiful Discord messages with creature images and stats
-- **Fallback System**: Multiple data sources ensure reliability
+- 🦎 **Smart Boosted Creature Tracking**: Automatically posts when daily boosted creature changes
+- 👹 **Boosted Boss Monitoring**: Tracks and announces daily boosted boss changes  
+- ⏰ **Intelligent Scheduling**: Posts at 10:06 CEST (right after Tibia server boot)
+- 🚫 **Anti-Spam**: Only posts when creatures/bosses actually change
+- 📊 **Rich Embeds**: Beautiful Discord embeds with creature stats and information
+- ⚡ **Slash Commands**: Manual update and status commands
+- 🔄 **Reliable API**: Uses TibiaData API v4 for accurate data
 
-### Web Dashboard
-- **Real-time Monitoring**: Live bot status and performance metrics
-- **Creature Tracking**: View boosted creatures history and details
-- **Configuration**: Manage bot settings and channel assignments
-- **API Testing**: Test TibiaData API endpoints and view responses
-- **Logs**: Monitor bot activity and troubleshoot issues
+## Quick Deploy to Railway
 
-### Technical Features
-- **TibiaData API v4**: Latest API integration with proper error handling
-- **Change Detection**: Compares data to avoid duplicate posts
-- **Timezone Support**: Proper CEST/CET handling for Tibia server times
-- **Error Recovery**: Robust retry mechanisms and fallback data sources
-- **Performance Monitoring**: Response times, success rates, uptime tracking
+1. **Fork this repository** on GitHub
+2. **Connect to Railway**:
+   - Go to [Railway.app](https://railway.app)
+   - Click "New Project" → "Deploy from GitHub repo"
+   - Select your forked repository
+3. **Set Environment Variables** in Railway:
+   - `DISCORD_TOKEN`: Your Discord bot token
+   - `CREATURE_CHANNEL_ID`: Channel ID for boosted creature posts
+   - `BOSS_CHANNEL_ID`: Channel ID for boosted boss posts
+4. **Deploy** and your bot will be live!
 
-## Railway Deployment
+The bot will automatically:
+- Post creature updates at 10:06 CEST when they change
+- Post boss updates at 10:06 CEST when they change
+- Only post when there are actual changes (no spam)
 
-### Required Environment Variables
+## Manual Setup
 
-Set these in your Railway dashboard:
+### Prerequisites
 
-1. **DISCORD_TOKEN** - Your Discord bot token
-2. **CREATURE_CHANNEL_ID** - Channel ID for creature updates
-3. **BOSS_CHANNEL_ID** - Channel ID for boss updates
+- Python 3.11+
+- Discord bot token ([How to create a Discord bot](https://discord.com/developers/applications))
+- Two Discord channels (for creatures and bosses)
+- Channel IDs from your Discord server
 
-### Getting Your Values
+### Getting Discord Bot Token & Channel IDs
 
-#### Discord Bot Token
-1. Go to [Discord Developer Portal](https://discord.com/developers/applications)
-2. Create new application or select existing one
-3. Go to "Bot" section and copy the token
+1. **Create Discord Bot**:
+   - Go to [Discord Developer Portal](https://discord.com/developers/applications)
+   - Click "New Application" → Enter bot name → "Create"
+   - Go to "Bot" tab → "Add Bot" → "Yes, do it!"
+   - Copy the bot token (keep it secret!)
 
-#### Channel IDs
-1. Enable Developer Mode in Discord (User Settings → Advanced → Developer Mode)
-2. Right-click the channel where you want updates
-3. Select "Copy Channel ID"
+2. **Invite Bot to Server**:
+   - Go to "OAuth2" → "URL Generator" 
+   - Select "bot" scope and "Send Messages", "Use Slash Commands", "Embed Links" permissions
+   - Copy the generated URL and open it to invite the bot
 
-### Deployment Steps
+3. **Get Channel IDs**:
+   - Enable Developer Mode in Discord (User Settings → Advanced → Developer Mode)
+   - Right-click on your channels → "Copy ID"
+   - Save these IDs for the environment variables
 
-1. **Fork/Clone**: Get the code to your GitHub repository
-2. **Connect Railway**: Link your repository to Railway
-3. **Environment Variables**: Add the 3 required variables in Railway dashboard
-4. **Deploy**: Railway automatically builds and deploys using the configuration files
+### Installation
 
-### Bot Permissions
-
-Your Discord bot needs these permissions:
-- Send Messages
-- Use Slash Commands
-- Embed Links
-- Attach Files
-- Read Message History
-
-## Project Structure
-
-```
-├── client/                 # React frontend dashboard
-│   ├── src/
-│   │   ├── components/    # Reusable UI components
-│   │   ├── pages/         # Dashboard, creatures, configuration pages
-│   │   ├── hooks/         # Custom React hooks
-│   │   └── lib/           # Utilities and API client
-│   └── index.html
-├── server/                # Express.js API server
-│   ├── index.ts          # Main server file
-│   ├── routes.ts         # API endpoints
-│   ├── storage.ts        # Data persistence layer
-│   └── vite.ts           # Frontend integration
-├── shared/
-│   └── schema.ts         # Shared TypeScript types
-├── railway.toml          # Railway deployment config
-├── nixpacks.toml         # Build optimization
-└── package.json          # Dependencies and scripts
-```
-
-## Development
-
-### Local Setup
+1. Clone the repository:
 ```bash
-npm install
-npm run dev
+git clone https://github.com/yourusername/tibia-discord-bot.git
+cd tibia-discord-bot
 ```
 
-### Available Scripts
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm start` - Start production server
-- `npm run check` - Type checking
+2. Install dependencies:
+```bash
+pip install -r packages.txt
+```
 
-## API Endpoints
+3. Create environment file:
+```bash
+cp .env.example .env
+```
 
-The web dashboard exposes these API endpoints:
+4. Edit `.env` file with your Discord bot token and channel IDs:
+```env
+DISCORD_TOKEN=your_discord_bot_token_here
+CREATURE_CHANNEL_ID=123456789012345678
+BOSS_CHANNEL_ID=123456789012345679
+```
 
-- `GET /api/bot/status` - Bot status and metrics
-- `GET /api/bot/logs` - Recent bot activity logs
-- `GET /api/creatures/boosted` - Current and recent boosted creatures
-- `GET /api/tests` - TibiaData API test results
-- `POST /api/bot/update` - Trigger manual update
+5. Run the bot:
+```bash
+python main.py
+```
 
-## Configuration
+## Available Commands
 
-### Bot Behavior
-- **Update Schedule**: 10:06 and 10:36 CEST daily (backup check)
-- **API Timeout**: 10 seconds for TibiaData requests
-- **Rate Limiting**: Respects Discord and TibiaData API limits
-- **Retry Logic**: 3 attempts with exponential backoff
+The bot includes these slash commands:
 
-### Data Sources
-1. **Primary**: TibiaData API v4 (`/v4/creatures`)
-2. **Fallback**: TibiaWiki for creature images
-3. **Cache**: In-memory storage for change detection
+- `/update` - Force check and post current boosted creature/boss
+- `/creature` - Show detailed information about current boosted creature
+- `/boss` - Show detailed information about current boosted boss
+- `/next` - Show when the next server save occurs
+- `/schedule` - Show the bot's automatic posting schedule
 
-## Monitoring
+## How It Works
 
-### Dashboard Metrics
-- Bot online status and uptime
-- API response times and success rates
-- Daily post counts
-- Last successful updates
-- Error logs and debugging info
+1. **Automatic Scheduling**: Bot checks for changes at 10:06 CEST daily (right after Tibia server boot)
+2. **Change Detection**: Only posts when creatures/bosses actually change
+3. **Rich Embeds**: Posts beautiful embeds with creature stats, images, and boosted benefits
+4. **Backup Check**: Secondary check at 10:36 CEST if the first check fails
+5. **API Integration**: Uses TibiaData API v4 for reliable, up-to-date information
 
-### Health Checks
-The `/api/bot/status` endpoint provides comprehensive health monitoring for external services.
+## Customization
 
-## Troubleshooting
-
-### Common Issues
-
-**Bot not posting updates:**
-- Check environment variables are set correctly
-- Verify bot has proper Discord permissions
-- Check logs in dashboard for API errors
-
-**API failures:**
-- TibiaData API may be temporarily down
-- Check network connectivity
-- Verify API endpoint URLs are current
-
-**Time zone issues:**
-- Bot uses CEST/CET for Tibia server times
-- Updates trigger at 10:06 server time (after daily server save)
-
-### Support
-- Check the web dashboard logs for detailed error information
-- Verify all environment variables are properly set
-- Ensure Discord bot has necessary permissions in target channels
-
-## License
-
-MIT License - Feel free to modify and redistribute.
+- **Custom Icon**: The bot uses a custom skull and sword icon (update the URL in `bot/embed_builder.py`)
+- **Colors**: Modify embed colors in `bot/embed_builder.py`
+- **Timing**: Adjust schedule in `bot/scheduler.py`
+- **Channels**: Set different channels for creatures and bosses via environment variables
 
 ## Contributing
 
@@ -173,4 +120,14 @@ MIT License - Feel free to modify and redistribute.
 4. Test thoroughly
 5. Submit a pull request
 
-Built with ❤️ for the Tibia community.
+## Support
+
+For issues and questions:
+- Check the logs in Railway/your hosting platform
+- Ensure your Discord bot has proper permissions
+- Verify your channel IDs are correct
+- Make sure the bot token is valid
+
+## License
+
+This project is open source and available under the MIT License.

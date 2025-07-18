@@ -2,7 +2,7 @@
 builder = "nixpacks"
 
 [deploy]
-startCommand = "npm run build && npm start"
+startCommand = "python start.py"
 restartPolicyType = "always"
 
 [env]
@@ -10,5 +10,3 @@ restartPolicyType = "always"
 DISCORD_TOKEN = { default = "" }
 CREATURE_CHANNEL_ID = { default = "" }
 BOSS_CHANNEL_ID = { default = "" }
-NODE_ENV = { default = "production" }
-PORT = { default = "5000" }

@@ -1,0 +1,80 @@
+[Region: europe-west4]
+
+=========================
+
+Using Detected Dockerfile
+
+=========================
+
+
+context: xz2j-YZLQ
+
+[internal] load build definition from Dockerfile
+
+[internal] load build definition from Dockerfile  ✔ 0 ms
+
+[internal] load build definition from Dockerfile
+
+[internal] load build definition from Dockerfile  ✔ 15 ms
+
+[internal] load metadata for docker.io/library/python:3.11-slim
+
+[auth] library/python:pull token for registry-1.docker.io
+
+[auth] library/python:pull token for registry-1.docker.io  ✔ 0 ms
+
+[internal] load metadata for docker.io/library/python:3.11-slim  ✔ 625 ms
+
+[internal] load .dockerignore
+
+[internal] load .dockerignore  ✔ 0 ms
+
+[internal] load .dockerignore
+
+[internal] load .dockerignore  ✔ 16 ms
+
+[6/6] RUN useradd --create-home --shell /bin/bash botuser &&     chown -R botuser:botuser /app
+
+[5/6] COPY . .
+
+[4/6] RUN pip install --no-cache-dir discord.py python-dotenv aiohttp pytz apscheduler requests
+
+[3/6] COPY packages.txt requirements.txt ./
+
+[internal] load build context
+
+[2/6] WORKDIR /app
+
+[1/6] FROM docker.io/library/python:3.11-slim@sha256:139020233cc412efe4c8135b0efe1c7569dc8b28ddd88bddb109b764f8977e30
+
+[1/6] FROM docker.io/library/python:3.11-slim@sha256:139020233cc412efe4c8135b0efe1c7569dc8b28ddd88bddb109b764f8977e30
+
+[internal] load build context
+
+[internal] load build context  ✔ 0 ms
+
+[1/6] FROM docker.io/library/python:3.11-slim@sha256:139020233cc412efe4c8135b0efe1c7569dc8b28ddd88bddb109b764f8977e30  ✔ 10 ms
+
+[internal] load build context  ✔ 45 ms
+
+✕ [3/6] COPY packages.txt requirements.txt ./ 
+failed to calculate checksum of ref piy989aj95xuutg7kb32uknci::y8bplcgd6praxz239xc12sp2f: "/requirements.txt": not found
+ 
+
+Dockerfile:7
+
+-------------------
+
+5 |
+
+6 |     # Copy requirements file first (better caching)
+
+7 | >>> COPY packages.txt requirements.txt ./
+
+8 |
+
+9 |     # Install Python dependencies directly without gcc
+
+-------------------
+
+ERROR: failed to build: failed to solve: failed to compute cache key: failed to calculate checksum of ref piy989aj95xuutg7kb32uknci::y8bplcgd6praxz239xc12sp2f: "/requirements.txt": not found
